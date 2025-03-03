@@ -4,9 +4,8 @@
 const int stepsPerRevolution = 200; // steps per revolution of our stepper
 
 Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11); //create an instance of the stepper library
-int sensorPin = 6;
-int pinState; //the state of the bump switch
-int stepper_position = 0;
+int sensorPin = 6; //bump switch pin position
+int servo_position = 0; 
 //int servoPos = 0;    // variable to store the servo position
 //int stepsPerLevel = 0; 
 int powerLevel = 0; //power setting of the device
@@ -15,7 +14,63 @@ int upButton = 5; // increase power pin
 int downButton = 4; //decrease power pin
 int fireButton = 3; //fire pin
 
-    myservo.attach(7);  // attaches the servo on pin 9 to the servo object
+Servo myservo;
+
+bool bumpSwitch(){
+	int pinState; //the state of the bump switch
+  pinState = digitalRead(sensorPin);
+  if(pinState == true){
+      return true;
+    }else{
+      return false;
+    }
+    return false;
+}
+
+bool upSwitch(){
+	int pinState; //the state of the bump switch
+  pinState = digitalRead(sensorPin);
+  if(pinState == true){
+      return true;
+    }else{
+      return false;
+    }
+    return false;
+}
+
+bool downSwitch(){
+	int pinState; //the state of the bump switch
+  pinState = digitalRead(sensorPin);
+  if(pinState == true){
+      return true;
+    }else{
+      return false;
+    }
+    return false;
+}
+
+bool fireSwitch(){
+	int pinState; //the state of the bump switch
+  	pinState = digitalRead(fireButton);
+	
+	if(pinState == true){
+		return true;
+	}else{
+		return false;
+	}
+	return false;
+}
+
+void launch(){
+
+    for (servo_position = 0; servo_position <= 90; servo_position += 1) { // goes from 0 degrees to 180 degrees
+        //    // in steps of 1 degree
+        myservo.write(servo_position);              // tell servo to go to position in variable 'pos'
+        delay(15);                       // waits 15ms for the servo to reach the position
+    }
+}
+
+void setup(){
 
     pinMode(upButton, INPUT); //takes the input of the up button
     pinMode(downButton, INPUT); //takes the input of the down button
@@ -26,45 +81,47 @@ int fireButton = 3; //fire pin
 	myStepper.setSpeed(60);
 	// initialize the serial port:
 	Serial.begin(9600);
+  myservo.attach(7);  // attaches the servo on pin 7 to the servo object
 
-bool bumpSwitch(){
-  pinState = digitalRead(sensorPin);
-  if(pinState == true){
-      return true;
-    }else{
-      return false;
-    }
-    return false;
-}
-
-void launch(){
-    for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
-        //    // in steps of 1 degree
-        myservo.write(pos);              // tell servo to go to position in variable 'pos'
-        delay(15);                       // waits 15ms for the servo to reach the position
-    }
-}
-
-pinState = digitalRead(sensorPin);
-void setup(){
-    
     while(bumpSwitch() == false){
         //bump switch is not pressed
-        Serial.println("clockwise");
-	    myStepper.step(stepsPerRevolution);
-        delay(50);
-        pinState = digitalRead(sensorPin);
+        Serial.println("clockwise"); //moves trigger system towards stepper
+	      myStepper.step(20);
+        delay(15);
     }
-    powerLevel = 15;
+	myStepper.step(-20);//moves trigger system away from stepper (to slightly move away from bump switch)
+	powerLevel = 15;
     //consider doing an initialization sequence for the servo
 }
 
 void loop() {
-    if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0){
-        launch();
-    }
-  if(((userPowerLevel > powerLevel) || (userPowerLevel > powerLevel)) && powerLevel <= 15 && powerLevel >= 0){
-        powerLevel = userPowerLevel;
-    }
+	
+	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
+		launch();
+	}
+	
+	if(upSwitch() == true){
+		userPowerLevel++;
+		delay(1000);
+	}
+	
+	if(downSwitch() == true){
+		userPowerLevel--;
+		delay(1000);
+	}
+	
+	if((userPowerLevel > powerLevel) && powerLevel <= 15 && powerLevel >= 0){
+		int n = userPowerLevel - powerLevel;
+		Serial.println("clockwise"); //moves the trigger system backwards
+		myStepper.step(n*433);
+        	powerLevel = userPowerLevel;
+  	}
+
+	if((userPowerLevel < powerLevel) && powerLevel <= 15 && powerLevel >= 0){
+		int n = powerLevel - userPowerLevel;
+		Serial.println("counterclockwise"); //moves the trigger system forward
+		myStepper.step(-n*433);
+        	powerLevel = userPowerLevel;
+	}
 
 }
