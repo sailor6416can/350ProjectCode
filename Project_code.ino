@@ -103,6 +103,7 @@ void loop() {
 	
 	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
 		Oled.print(powerLevel);
+		Oled.print("Launch!");
 		launch();
     Serial.println("launch");
 	}
