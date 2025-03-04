@@ -102,7 +102,7 @@ void loop() {
 	int random_value = analogRead(A0);   //read value from A0
 	
 	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
-		Oled.print(PowerLevel);
+		Oled.print(powerLevel);
 		launch();
 	}
 	
@@ -110,7 +110,7 @@ void loop() {
 		userPowerLevel++;
 		Oled.setFont(u8x8_font_chroma48medium8_r); 
   		Oled.setCursor(0, 33);    // Set the Coordinates 
-  		Oled.print("Analog Value:");
+  		Oled.print("Power Value:");
 		Oled.print(userPowerLevel); // Print the Values  
 		delay(1000);
 	}
