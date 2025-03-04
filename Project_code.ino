@@ -94,7 +94,7 @@ void setup(){
 	powerLevel = 15;
     //consider doing an initialization sequence for the servo
 	Oled.begin();
-  	Oled.setFlipMode(true); // Sets the rotation of the screen
+  Oled.setFlipMode(true); // Sets the rotation of the screen
 }
 
 void loop() {
@@ -104,14 +104,17 @@ void loop() {
 	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
 		Oled.print(powerLevel);
 		launch();
+    Serial.println("launch");
 	}
 	
 	if(upSwitch() == true){
 		userPowerLevel++;
 		Oled.setFont(u8x8_font_chroma48medium8_r); 
-  		Oled.setCursor(0, 33);    // Set the Coordinates 
-  		Oled.print("Power Value:");
+  	Oled.setCursor(0, 33);    // Set the Coordinates 
+  	Oled.print("Power Value:");
 		Oled.print(userPowerLevel); // Print the Values  
+    Oled.refreshDisplay();    // Update the Display
+    Serial.println("up switch"); 
 		delay(1000);
 	}
 	
@@ -121,6 +124,8 @@ void loop() {
   		Oled.setCursor(0, 33);    // Set the Coordinates 
   		Oled.print("Analog Value:");
 		Oled.print(userPowerLevel); // Print the Values
+    Oled.refreshDisplay();    // Update the Display 
+    Serial.println("down switch"); 
 		delay(1000);
 	}
 	
@@ -129,6 +134,7 @@ void loop() {
 		Serial.println("clockwise"); //moves the trigger system backwards
 		myStepper.step(n*433);
         	powerLevel = userPowerLevel;
+          Serial.println("increaseing power"); 
   	}
 
 	if((userPowerLevel < powerLevel) && powerLevel <= 15 && powerLevel >= 0){
@@ -136,6 +142,7 @@ void loop() {
 		Serial.println("counterclockwise"); //moves the trigger system forward
 		myStepper.step(-n*433);
         	powerLevel = userPowerLevel;
+          Serial.println("decreaseing power"); 
 	}
 
 }
