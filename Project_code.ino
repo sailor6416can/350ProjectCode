@@ -1,5 +1,6 @@
 #include <Servo.h> //Servo motor library
 #include <Stepper.h> //Stepper motor library
+#include "Arduino_SensorKit.h" //OLED Screen library
 
 const int stepsPerRevolution = 200; // steps per revolution of our stepper
 
@@ -92,21 +93,34 @@ void setup(){
 	myStepper.step(-20);//moves trigger system away from stepper (to slightly move away from bump switch)
 	powerLevel = 15;
     //consider doing an initialization sequence for the servo
+	Oled.begin();
+  	Oled.setFlipMode(true); // Sets the rotation of the screen
 }
 
 void loop() {
+
+	int random_value = analogRead(A0);   //read value from A0
 	
 	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
+		Oled.print(PowerLevel);
 		launch();
 	}
 	
 	if(upSwitch() == true){
 		userPowerLevel++;
+		Oled.setFont(u8x8_font_chroma48medium8_r); 
+  		Oled.setCursor(0, 33);    // Set the Coordinates 
+  		Oled.print("Analog Value:");
+		Oled.print(userPowerLevel); // Print the Values  
 		delay(1000);
 	}
 	
 	if(downSwitch() == true){
 		userPowerLevel--;
+		Oled.setFont(u8x8_font_chroma48medium8_r); 
+  		Oled.setCursor(0, 33);    // Set the Coordinates 
+  		Oled.print("Analog Value:");
+		Oled.print(userPowerLevel); // Print the Values
 		delay(1000);
 	}
 	
