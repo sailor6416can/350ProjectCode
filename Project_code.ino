@@ -1,16 +1,16 @@
 #include <Servo.h> //Servo motor library
 #include <Stepper.h> //Stepper motor library
-#include "Arduino_SensorKit.h" //OLED Screen library
+#include <Arduino_SensorKit.h> //OLED Screen library
 
 const int stepsPerRevolution = 200; // steps per revolution of our stepper
 
 Stepper myStepper(stepsPerRevolution, 8, 9, 10, 11); //create an instance of the stepper library
-int sensorPin = 6; //bump switch pin position
+int sensorPin = 6; //bump switch pin position 
 int servo_position = 0; 
 //int servoPos = 0;    // variable to store the servo position
 //int stepsPerLevel = 0; 
 int powerLevel = 0; //power setting of the device
-int userPowerLevel = 0;
+int userPowerLevel = 15;
 int upButton = 5; // increase power pin
 int downButton = 4; //decrease power pin
 int fireButton = 3; //fire pin
@@ -25,36 +25,42 @@ bool bumpSwitch(){
     }else{
       return false;
     }
-    return false;
+  return false;
 }
 
-bool upSwitch(){
+bool upSwitch(){ //on pin 5
 	int pinState; //the state of the bump switch
-  pinState = digitalRead(sensorPin);
+  pinState = digitalRead(upButton);
   if(pinState == true){
-      return true;
-    }else{
+    Serial.println("up switch");
+    return true;
+    }
+  else{
       return false;
     }
-    return false;
+  return false;
 }
 
-bool downSwitch(){
+bool downSwitch(){ // on pin 4
 	int pinState; //the state of the bump switch
-  pinState = digitalRead(sensorPin);
+  pinState = digitalRead(downButton);
   if(pinState == true){
-      return true;
-    }else{
+    Serial.println("down switch");
+      return true;    
+  }
+  else{
       return false;
-    }
-    return false;
+  }
+  return false;
 }
 
-bool fireSwitch(){
+bool fireSwitch(){ // on pin 3
 	int pinState; //the state of the bump switch
+  
   	pinState = digitalRead(fireButton);
 	
 	if(pinState == true){
+    Serial.println("fire switch");
 		return true;
 	}else{
 		return false;
@@ -91,7 +97,8 @@ void setup(){
         delay(15);
     }
 	myStepper.step(-20);//moves trigger system away from stepper (to slightly move away from bump switch)
-	powerLevel = 15;
+	Serial.println("end of down");
+  powerLevel = 15;
     //consider doing an initialization sequence for the servo
 	Oled.begin();
   Oled.setFlipMode(true); // Sets the rotation of the screen
@@ -99,16 +106,16 @@ void setup(){
 
 void loop() {
 
-	int random_value = analogRead(A0);   //read value from A0
+   Serial.println("loop started");
+
 	
 	if(userPowerLevel == powerLevel && powerLevel <= 15 && powerLevel >= 0 && fireSwitch() == true){
 		Oled.print(powerLevel);
-		Oled.print("Launch!");
 		launch();
     Serial.println("launch");
 	}
 	
-	if(upSwitch() == true){
+	else if(upSwitch() == true){
 		userPowerLevel++;
 		Oled.setFont(u8x8_font_chroma48medium8_r); 
   	Oled.setCursor(0, 33);    // Set the Coordinates 
@@ -119,7 +126,7 @@ void loop() {
 		delay(1000);
 	}
 	
-	if(downSwitch() == true){
+	else if(downSwitch() == true){
 		userPowerLevel--;
 		Oled.setFont(u8x8_font_chroma48medium8_r); 
   		Oled.setCursor(0, 33);    // Set the Coordinates 
@@ -130,7 +137,7 @@ void loop() {
 		delay(1000);
 	}
 	
-	if((userPowerLevel > powerLevel) && powerLevel <= 15 && powerLevel >= 0){
+	if((userPowerLevel > powerLevel) && powerLevel <= 15){
 		int n = userPowerLevel - powerLevel;
 		Serial.println("clockwise"); //moves the trigger system backwards
 		myStepper.step(n*433);
@@ -138,7 +145,7 @@ void loop() {
           Serial.println("increaseing power"); 
   	}
 
-	if((userPowerLevel < powerLevel) && powerLevel <= 15 && powerLevel >= 0){
+	if((userPowerLevel < powerLevel) && powerLevel >= 0){
 		int n = powerLevel - userPowerLevel;
 		Serial.println("counterclockwise"); //moves the trigger system forward
 		myStepper.step(-n*433);
